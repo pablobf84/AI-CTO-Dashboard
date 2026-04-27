@@ -1,0 +1,164 @@
+```json
+{
+  "sprint_goal": "Establecer la infraestructura core multi-tenant, autenticación robusta y el flujo de captura de datos (Intake) para transformar ideas en briefs persistentes.",
+  "user_flow": [
+    "Usuario se registra/loguea via Supabase Auth.",
+    "Usuario sin organización es redirigido a /app/onboarding para crear su primera organización.",
+    "Usuario accede al dashboard principal (/app) y visualiza el listado de proyectos (vacío inicialmente).",
+    "Usuario crea un nuevo proyecto definiendo nombre y descripción básica.",
+    "Usuario es dirigido al Intake Form para detallar la idea del SaaS.",
+    "Usuario guarda el Intake y el sistema genera el Project Brief inicial.",
+    "Usuario visualiza el Project Dashboard con el estado actual del proyecto (intake_ready)."
+  ],
+  "routes": [
+    {
+      "path": "/",
+      "type": "public",
+      "description": "Landing page informativa básica."
+    },
+    {
+      "path": "/login",
+      "type": "public",
+      "description": "Formulario de acceso."
+    },
+    {
+      "path": "/register",
+      "type": "public",
+      "description": "Formulario de registro."
+    },
+    {
+      "path": "/app",
+      "type": "protected",
+      "description": "Dashboard principal / Selección de organización."
+    },
+    {
+      "path": "/app/onboarding",
+      "type": "protected",
+      "description": "Creación de organización inicial."
+    },
+    {
+      "path": "/app/projects",
+      "type": "protected",
+      "description": "Listado de proyectos de la organización activa."
+    },
+    {
+      "path": "/app/projects/new",
+      "type": "protected",
+      "description": "Formulario de creación de proyecto."
+    },
+    {
+      "path": "/app/projects/[projectId]",
+      "type": "protected",
+      "description": "Vista general (Overview) del proyecto y sus fases."
+    },
+    {
+      "path": "/app/projects/[projectId]/intake",
+      "type": "protected",
+      "description": "Formulario estructurado de definición de producto."
+    }
+  ],
+  "entities": [
+    "Profile",
+    "Organization",
+    "OrganizationMember",
+    "Project",
+    "ProjectBrief",
+    "ProjectPhase"
+  ],
+  "forms": [
+    {
+      "id": "auth-form",
+      "fields": ["email", "password"]
+    },
+    {
+      "id": "create-org-form",
+      "fields": ["name", "slug"]
+    },
+    {
+      "id": "create-project-form",
+      "fields": ["name", "description"]
+    },
+    {
+      "id": "intake-form",
+      "fields": [
+        "target_audience",
+        "core_problem",
+        "key_features",
+        "tech_preferences",
+        "integrations_needed"
+      ]
+    }
+  ],
+  "ui_modules": [
+    "Sidebar (Navegación, OrgSwitcher)",
+    "Header (Breadcrumbs, UserMenu)",
+    "ProjectCard (Status, Phase Progress)",
+    "StatusBadge (draft, active, archived)",
+    "EmptyState (Proyectos, Organizaciones)",
+    "PhaseStepper (Visualización de avance de etapas)"
+  ],
+  "backend_modules": [
+    "AuthMiddleware (Protección de rutas /app)",
+    "OrgContext (Provider para manejar organización activa)",
+    "ServerActions: Projects (CRUD)",
+    "ServerActions: Organizations (Create/Join)",
+    "ServerActions: Intake (Save/Update ProjectBrief)",
+    "Validation: Zod Schemas para cada formulario"
+  ],
+  "database_tables": [
+    {
+      "name": "profiles",
+      "columns": ["id (UUID, PK)", "email (TEXT)", "full_name (TEXT)", "avatar_url (TEXT)", "updated_at (TIMESTAMP)"]
+    },
+    {
+      "name": "organizations",
+      "columns": ["id (UUID, PK)", "name (TEXT)", "slug (TEXT, UNIQUE)", "created_at (TIMESTAMP)"]
+    },
+    {
+      "name": "organization_members",
+      "columns": ["org_id (UUID, FK)", "profile_id (UUID, FK)", "role (TEXT: 'owner'|'member')", "PRIMARY KEY (org_id, profile_id)"]
+    },
+    {
+      "name": "projects",
+      "columns": ["id (UUID, PK)", "org_id (UUID, FK)", "name (TEXT)", "status (TEXT: 'draft'|'intake_ready'|'active')", "created_at (TIMESTAMP)"]
+    },
+    {
+      "name": "project_briefs",
+      "columns": ["id (UUID, PK)", "project_id (UUID, FK, UNIQUE)", "data (JSONB)", "created_at (TIMESTAMP)", "updated_at (TIMESTAMP)"]
+    },
+    {
+      "name": "project_phases",
+      "columns": ["id (UUID, PK)", "project_id (UUID, FK)", "name (TEXT)", "status (TEXT: 'locked'|'pending'|'in_progress'|'approved')", "order_index (INT)"]
+    }
+  ],
+  "rls_rules": [
+    "Profiles: solo lectura por el propio usuario.",
+    "Organizations: lectura si el profile_id existe en organization_members.",
+    "OrganizationMembers: lectura si el profile_id pertenece a la misma org.",
+    "Projects: CRUD permitido solo si el usuario es miembro de la org_id vinculada.",
+    "ProjectBriefs: CRUD vinculado a la propiedad del proyecto vía org membership.",
+    "ProjectPhases: Lectura para miembros de la organización."
+  ],
+  "acceptance_criteria": [
+    "El usuario no puede acceder a /app sin sesión activa.",
+    "Un usuario nuevo es forzado a crear una organización antes de ver el dashboard de proyectos.",
+    "El slug de la organización debe ser único.",
+    "Al crear un proyecto, se insertan automáticamente las fases por defecto en project_phases (PRD, Architecture, Backlog).",
+    "El Intake Form guarda datos en formato JSONB en la tabla project_briefs.",
+    "El cambio de estado del proyecto a 'intake_ready' ocurre tras el primer guardado completo del formulario.",
+    "La navegación lateral refleja correctamente el proyecto seleccionado."
+  ],
+  "non_goals": [
+    "Generación de contenido con IA (OpenAI/Anthropic).",
+    "Gestión de suscripciones y pagos (Stripe).",
+    "Invitación de miembros por email.",
+    "Exportación de documentos a PDF/Markdown.",
+    "Integración con GitHub API."
+  ],
+  "technical_risks": [
+    "Complejidad en la sincronización del estado de la organización activa entre Client y Server components.",
+    "Configuración inicial de RLS de Supabase que pueda bloquear inserts en tablas relacionales (org_members).",
+    "Manejo de estados de carga (loading states) en Server Actions para evitar UI bloqueada."
+  ]
+}
+```
