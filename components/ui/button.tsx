@@ -1,5 +1,5 @@
-import Link from "next/link";
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
+import { Children, cloneElement, isValidElement } from "react";
+import type { ButtonHTMLAttributes, ReactElement, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -8,9 +8,11 @@ type ButtonProps = {
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
   children: ReactNode;
-  href?: string;
-} & ButtonHTMLAttributes<HTMLButtonElement> &
-  AnchorHTMLAttributes<HTMLAnchorElement>;
+} & ButtonHTMLAttributes<HTMLButtonElement>;
+
+type SlottableChildProps = {
+  className?: string;
+} & Record<string, unknown>;
 
 export function Button({
   asChild,
@@ -18,7 +20,6 @@ export function Button({
   size = "md",
   className,
   children,
-  href = "#",
   ...props
 }: ButtonProps) {
   const classes = cn(
@@ -33,11 +34,16 @@ export function Button({
   );
 
   if (asChild) {
-    return (
-      <Link className={classes} href={href} {...props}>
-        {children}
-      </Link>
-    );
+    const child = Children.only(children);
+
+    if (!isValidElement<SlottableChildProps>(child)) {
+      throw new Error("Button with asChild requires a single valid React element child.");
+    }
+
+    return cloneElement(child as ReactElement<SlottableChildProps>, {
+      ...props,
+      className: cn(classes, child.props.className)
+    });
   }
 
   return (

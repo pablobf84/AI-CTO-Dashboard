@@ -18,10 +18,11 @@ export async function registerAction(_: ActionState, formData: FormData): Promis
     };
   }
 
+  const { email, password } = parsed.data;
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signUp({
-    email: parsed.data.email,
-    password: parsed.data.password
+    email,
+    password
   });
 
   if (error) {
@@ -45,13 +46,26 @@ export async function loginAction(_: ActionState, formData: FormData): Promise<A
     };
   }
 
+  const { email, password } = parsed.data;
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
 
   if (error) {
+    console.log("login error:", error);
+
     return {
       status: "error",
-      message: error.message
+      message: getLoginErrorMessage(error.message)
+    };
+  }
+
+  if (!data.session) {
+    return {
+      status: "error",
+      message: "Login succeeded but no session was created. Check Supabase auth settings."
     };
   }
 
@@ -62,4 +76,18 @@ export async function logoutAction() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
   redirect("/login");
+}
+
+function getLoginErrorMessage(message: string) {
+  const normalizedMessage = message.toLowerCase();
+
+  if (normalizedMessage.includes("invalid login credentials")) {
+    return "Invalid email or password.";
+  }
+
+  if (normalizedMessage.includes("email not confirmed")) {
+    return "Confirm your email before logging in.";
+  }
+
+  return message || "Login failed. Try again.";
 }

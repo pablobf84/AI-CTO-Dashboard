@@ -13,12 +13,12 @@ export default function HomePage() {
           AI CTO Dashboard
         </Link>
         <div className="flex items-center gap-3">
-          <Button asChild variant="ghost">
-            <Link href="/login">Login</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/register">Create account</Link>
-          </Button>
+          <Link href="/login">
+            <Button variant="ghost">Login</Button>
+          </Link>
+          <Link href="/register">
+            <Button>Create account</Button>
+          </Link>
         </div>
       </nav>
 
@@ -32,14 +32,14 @@ export default function HomePage() {
             Build a durable project memory, technical plan and agent-ready backlog before multiple AIs start writing code.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <Button asChild size="lg">
-              <Link href="/register">
+            <Link href="/register">
+              <Button size="lg">
                 Start Sprint 1 flow <ArrowRight size={18} />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="secondary">
-              <Link href="/login">I already have an account</Link>
-            </Button>
+              </Button>
+            </Link>
+            <Link href="/login">
+              <Button size="lg" variant="secondary">I already have an account</Button>
+            </Link>
           </div>
         </div>
 

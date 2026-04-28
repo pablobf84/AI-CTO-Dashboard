@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Plus } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/page-header";
@@ -14,10 +15,12 @@ export default async function ProjectsPage() {
         title="Projects"
         description="Every project belongs to the active organization and is protected by membership-based RLS."
         actions={
-          <Button asChild href="/app/projects/new">
-            <Plus size={18} />
-            New project
-          </Button>
+          <Link href="/app/projects/new">
+            <Button>
+              <Plus size={18} />
+              New project
+            </Button>
+          </Link>
         }
       />
 
@@ -25,9 +28,9 @@ export default async function ProjectsPage() {
         <div className="rounded-lg border border-dashed border-border bg-card p-8">
           <h2 className="text-xl font-semibold">No projects yet</h2>
           <p className="mt-2 max-w-xl text-muted-foreground">Create the first project, then complete the structured intake to persist the initial brief.</p>
-          <Button asChild href="/app/projects/new" className="mt-5">
-            Create project
-          </Button>
+          <Link href="/app/projects/new">
+            <Button className="mt-5">Create project</Button>
+          </Link>
         </div>
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">

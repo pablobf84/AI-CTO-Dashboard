@@ -16,9 +16,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         title={project.name}
         description={project.description ?? "Project dashboard for Sprint 1 execution state."}
         actions={
-          <Button asChild href={`/app/projects/${project.id}/intake`} variant="secondary">
-            Edit intake
-          </Button>
+          <Link href={`/app/projects/${project.id}/intake`}>
+            <Button variant="secondary">Edit intake</Button>
+          </Link>
         }
       />
 

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -17,9 +18,9 @@ export default async function AppHomePage() {
         title={`${organization.name} dashboard`}
         description="Track the projects currently moving from idea intake into technical execution."
         actions={
-          <Button asChild href="/app/projects/new">
-            New project
-          </Button>
+          <Link href="/app/projects/new">
+            <Button>New project</Button>
+          </Link>
         }
       />
       <div className="grid gap-4 rounded-lg border border-border bg-card p-6">
