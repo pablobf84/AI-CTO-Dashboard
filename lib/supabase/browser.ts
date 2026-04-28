@@ -2,15 +2,11 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 
+import { getSupabasePublicEnv } from "@/lib/supabase/env";
 import type { Database } from "@/types/db";
 
 export function createSupabaseBrowserClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !anonKey) {
-    throw new Error("Supabase public environment variables are not configured.");
-  }
+  const { url, anonKey } = getSupabasePublicEnv("browser");
 
   return createBrowserClient<Database>(url, anonKey);
 }
