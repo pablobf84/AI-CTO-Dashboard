@@ -47,33 +47,31 @@ export type Database = {
       };
       organization_memberships: {
         Row: {
-          org_id: string;
-          profile_id: string;
+          organization_id: string;
+          user_id: string;
           role: OrganizationRole;
-          created_at: string;
         };
         Insert: {
-          org_id: string;
-          profile_id: string;
+          organization_id: string;
+          user_id: string;
           role: OrganizationRole;
-          created_at?: string;
         };
         Update: {
           role?: OrganizationRole;
         };
         Relationships: [
           {
-            foreignKeyName: "organization_memberships_org_id_fkey";
-            columns: ["org_id"];
+            foreignKeyName: "organization_memberships_organization_id_fkey";
+            columns: ["organization_id"];
             isOneToOne: false;
             referencedRelation: "organizations";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "organization_memberships_profile_id_fkey";
-            columns: ["profile_id"];
+            foreignKeyName: "organization_memberships_user_id_fkey";
+            columns: ["user_id"];
             isOneToOne: false;
-            referencedRelation: "profiles";
+            referencedRelation: "users";
             referencedColumns: ["id"];
           }
         ];

@@ -15,8 +15,7 @@ export async function getActiveOrganization() {
         organizations (*)
       `
     )
-    .eq("profile_id", user.id)
-    .order("created_at", { ascending: true })
+    .eq("user_id", user.id)
     .limit(1)
     .maybeSingle();
 
