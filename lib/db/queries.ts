@@ -8,8 +8,13 @@ export async function getActiveOrganization() {
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
-    .from("organization_members")
-    .select("role, organizations(id, name, slug, created_at)")
+    .from("organization_memberships")
+    .select(
+      `
+        *,
+        organizations (*)
+      `
+    )
     .eq("profile_id", user.id)
     .order("created_at", { ascending: true })
     .limit(1)

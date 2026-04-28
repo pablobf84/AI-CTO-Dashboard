@@ -28,7 +28,7 @@
 Tablas:
 - profiles
 - organizations
-- organization_members
+- organization_memberships
 - projects
 - project_briefs
 - project_phases

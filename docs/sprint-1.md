@@ -41,7 +41,7 @@ Dejar la base del producto lista para que un usuario:
 ## Entidades Sprint 1
 - profiles
 - organizations
-- organization_members
+- organization_memberships
 - projects
 - project_briefs
 - project_phases

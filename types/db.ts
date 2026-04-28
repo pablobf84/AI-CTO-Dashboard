@@ -45,7 +45,7 @@ export type Database = {
         };
         Relationships: [];
       };
-      organization_members: {
+      organization_memberships: {
         Row: {
           org_id: string;
           profile_id: string;
@@ -63,14 +63,14 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "organization_members_org_id_fkey";
+            foreignKeyName: "organization_memberships_org_id_fkey";
             columns: ["org_id"];
             isOneToOne: false;
             referencedRelation: "organizations";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "organization_members_profile_id_fkey";
+            foreignKeyName: "organization_memberships_profile_id_fkey";
             columns: ["profile_id"];
             isOneToOne: false;
             referencedRelation: "profiles";

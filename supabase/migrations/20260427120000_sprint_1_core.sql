@@ -15,7 +15,7 @@ create table if not exists public.organizations (
   created_at timestamptz not null default now()
 );
 
-create table if not exists public.organization_members (
+create table if not exists public.organization_memberships (
   org_id uuid not null references public.organizations(id) on delete cascade,
   profile_id uuid not null references public.profiles(id) on delete cascade,
   role text not null check (role in ('owner', 'member')),
@@ -84,7 +84,7 @@ create table if not exists public.artifacts (
   updated_at timestamptz not null default now()
 );
 
-create index if not exists organization_members_profile_id_idx on public.organization_members(profile_id);
+create index if not exists organization_memberships_profile_id_idx on public.organization_memberships(profile_id);
 create index if not exists projects_org_id_idx on public.projects(org_id);
 create index if not exists project_phases_project_id_idx on public.project_phases(project_id);
 create index if not exists approvals_project_id_idx on public.approvals(project_id);
@@ -159,7 +159,7 @@ set search_path = public
 as $$
   select exists (
     select 1
-    from public.organization_members om
+    from public.organization_memberships om
     where om.org_id = target_org_id
       and om.profile_id = auth.uid()
   );
@@ -175,7 +175,7 @@ as $$
   select exists (
     select 1
     from public.projects p
-    join public.organization_members om on om.org_id = p.org_id
+    join public.organization_memberships om on om.org_id = p.org_id
     where p.id = target_project_id
       and om.profile_id = auth.uid()
   );
@@ -208,7 +208,7 @@ begin
   values (trim(organization_name), trim(organization_slug))
   returning id into new_org_id;
 
-  insert into public.organization_members (org_id, profile_id, role)
+  insert into public.organization_memberships (org_id, profile_id, role)
   values (new_org_id, current_user_id, 'owner');
 
   return new_org_id;
@@ -252,7 +252,7 @@ $$;
 
 alter table public.profiles enable row level security;
 alter table public.organizations enable row level security;
-alter table public.organization_members enable row level security;
+alter table public.organization_memberships enable row level security;
 alter table public.projects enable row level security;
 alter table public.project_briefs enable row level security;
 alter table public.project_phases enable row level security;
@@ -286,7 +286,7 @@ to authenticated
 using (
   exists (
     select 1
-    from public.organization_members om
+    from public.organization_memberships om
     where om.org_id = id
       and om.profile_id = auth.uid()
       and om.role = 'owner'
@@ -295,16 +295,16 @@ using (
 with check (
   exists (
     select 1
-    from public.organization_members om
+    from public.organization_memberships om
     where om.org_id = id
       and om.profile_id = auth.uid()
       and om.role = 'owner'
   )
 );
 
-drop policy if exists "organization members select same org" on public.organization_members;
+drop policy if exists "organization members select same org" on public.organization_memberships;
 create policy "organization members select same org"
-on public.organization_members for select
+on public.organization_memberships for select
 to authenticated
 using (public.is_org_member(org_id));
 
@@ -334,7 +334,7 @@ to authenticated
 using (
   exists (
     select 1
-    from public.organization_members om
+    from public.organization_memberships om
     where om.org_id = projects.org_id
       and om.profile_id = auth.uid()
       and om.role = 'owner'

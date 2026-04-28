@@ -115,7 +115,7 @@
       "columns": ["id (UUID, PK)", "name (TEXT)", "slug (TEXT, UNIQUE)", "created_at (TIMESTAMP)"]
     },
     {
-      "name": "organization_members",
+      "name": "organization_memberships",
       "columns": ["org_id (UUID, FK)", "profile_id (UUID, FK)", "role (TEXT: 'owner'|'member')", "PRIMARY KEY (org_id, profile_id)"]
     },
     {
@@ -133,7 +133,7 @@
   ],
   "rls_rules": [
     "Profiles: solo lectura por el propio usuario.",
-    "Organizations: lectura si el profile_id existe en organization_members.",
+    "Organizations: lectura si el profile_id existe en organization_memberships.",
     "OrganizationMembers: lectura si el profile_id pertenece a la misma org.",
     "Projects: CRUD permitido solo si el usuario es miembro de la org_id vinculada.",
     "ProjectBriefs: CRUD vinculado a la propiedad del proyecto vía org membership.",
